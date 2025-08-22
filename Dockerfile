@@ -1,20 +1,19 @@
-# Use an official Node.js runtime as the base image
-FROM node:20-alpine
+FROM python:3.10-slim
 
-# Set the working directory in the container
-WORKDIR /usr/src/app
+LABEL maintainer "kevin.lee"
 
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+RUN pip install --upgrade pip
+RUN mkdir -p /cloud-web/image
 
-# Install project dependencies
-RUN npm install
+ENV APP_PATH /cloud-web/image
 
-# Copy the rest of the application code
-COPY . .
+COPY requirements.txt $APP_PATH/
+RUN pip install --no-cache-dir -r $APP_PATH/requirements.txt
 
-# Expose the application port
-EXPOSE 3000
+COPY app.py $APP_PATH/
+COPY templates/ $APP_PATH/templates/
+COPY static/ $APP_PATH/static/
 
-# Start the application
-CMD ["node", "server.js"]
+EXPOSE 8899
+
+CMD ["python", "/cloud-web/image/app.py"]
